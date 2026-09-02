@@ -1,0 +1,71 @@
+{
+  "branding": {
+    "primary_color": "#1e40af",
+    "accent_color": "#3b82f6"
+  },
+  "features_toggle": {
+    "show_pricing": true,
+    "show_whatsapp_float": true
+  },
+  "media": {
+    "hero_image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+    "service_1_image": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=600&q=80",
+    "service_2_image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
+    "service_3_image": "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=600&q=80"
+  },
+  "contact": {
+    "email": "info@primeservices.com",
+    "phone": "+1234567890",
+    "whatsapp": "+1234567890"
+  },
+  "en": {
+    "business_name": "Prime Service Solutions",
+    "tagline": "Elevating Excellence in Professional Services",
+    "hero_badge": "PREMIUM SOLUTIONS",
+    "hero_title": "Professional Services Tailored to Your Success",
+    "hero_desc": "We offer a wide range of specialized services designed to streamline your operations and drive significant growth.",
+    "primary_cta": "Contact Us",
+    "secondary_cta": "View Services",
+    "services_title": "Our Specialized Service Areas",
+    "services_desc": "Expert solutions crafted to meet the diverse needs of modern businesses.",
+    "services": [
+      {
+        "title": "Business Consulting",
+        "desc": "Professional guidance to optimize your business strategies and improve operational efficiency."
+      },
+      {
+        "title": "Technical Support",
+        "desc": "Round-the-clock specialized assistance to ensure your systems run smoothly and without interruption."
+      },
+      {
+        "title": "Operational Management",
+        "desc": "Comprehensive management services to streamline workflows and maximize organizational productivity."
+      }
+    ]
+  },
+  "ar": {
+    "business_name": "برايم للحلول الخدمية",
+    "tagline": "نرتدقي بالتميز في الخدمات المهنية",
+    "hero_badge": "حلول متميزة",
+    "hero_title": "خدمات احترافية مصممة لنجاحك",
+    "hero_desc": "نقدم مجموعة واسعة من الخدمات المتخصصة المصممة لتبسيط عملياتك وتحقيق نمو ملموس.",
+    "primary_cta": "اتصل بنا",
+    "secondary_cta": "عرض الخدمات",
+    "services_title": "مجالات خدماتنا المتخصصة",
+    "services_desc": "حلول خبراء صممت لتلبية الاحتياجات المتنوعة للشركات الحديثة.",
+    "services": [
+      {
+        "title": "استشارات الأعمال",
+        "desc": "توجيه مهني لتحسين استراتيجيات عملك ورفع كفاءة العمليات التشغيلية."
+      },
+      {
+        "title": "الدعم الفني",
+        "desc": "مساعدة متخصصة على مدار الساعة لضمان عمل أنظمتك بسلاسة ودون انقطاع."
+      },
+      {
+        "title": "الإدارة التشغيلية",
+        "desc": "خدمات إدارية شاملة لتبسيط سير العمل وتعظيم الإنتاجية التنظيمية."
+      }
+    ]
+  }
+}
