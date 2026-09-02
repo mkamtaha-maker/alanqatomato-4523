@@ -1,0 +1,86 @@
+<!-- Dynamic Data Injection Script (Arabic) -->
+  <script>
+    async function loadData() {
+      try {
+        const response = await fetch('data.json?t=' + new Date().getTime());
+        if (!response.ok) return;
+        const data = await response.json();
+
+        // 1. Branding / Colors
+        if (data.branding?.primary_color) {
+          document.documentElement.style.setProperty('--primary-color', data.branding.primary_color);
+        }
+        if (data.branding?.accent_color) {
+          document.documentElement.style.setProperty('--accent-color', data.branding.accent_color);
+        }
+
+        // 2. Media / Images
+        if (data.media?.hero_image) {
+          const heroImg = document.getElementById('hero-img');
+          if (heroImg) heroImg.src = data.media.hero_image;
+        }
+
+        // 3. Arabic Content (data.ar)
+        const content = data.ar;
+        if (content) {
+          if (content.business_name) {
+            document.getElementById('nav-business-name').textContent = content.business_name;
+            document.getElementById('footer-brand').textContent = content.business_name;
+            document.getElementById('nav-logo-badge').textContent = content.business_name.charAt(0);
+            document.title = content.business_name + (content.tagline ? ' - ' + content.tagline : '');
+          }
+          if (content.tagline) document.getElementById('footer-tagline').textContent = content.tagline;
+
+          if (content.hero_badge) document.getElementById('hero-badge').textContent = content.hero_badge;
+          if (content.hero_title) document.getElementById('hero-title').textContent = content.hero_title;
+          if (content.hero_desc) document.getElementById('hero-desc').textContent = content.hero_desc;
+          if (content.primary_cta) document.getElementById('hero-primary-cta').textContent = content.primary_cta;
+          if (content.secondary_cta) document.getElementById('hero-secondary-cta').textContent = content.secondary_cta;
+
+          if (content.services_title) document.getElementById('services-main-title').textContent = content.services_title;
+          if (content.services_desc) document.getElementById('services-main-desc').textContent = content.services_desc;
+
+          if (Array.isArray(content.services)) {
+            const cards = document.querySelectorAll('#services-container > div');
+            content.services.forEach((service, index) => {
+              if (cards[index]) {
+                const titleEl = cards[index].querySelector('.service-title');
+                const descEl = cards[index].querySelector('.service-desc');
+                const imgEl = cards[index].querySelector('.service-img');
+                if (titleEl) titleEl.textContent = service.title;
+                if (descEl) descEl.textContent = service.desc;
+                if (imgEl && data.media && data.media[`service_${index + 1}_image`]) {
+                  imgEl.src = data.media[`service_${index + 1}_image`];
+                }
+              }
+            });
+          }
+        }
+
+        // 4. Feature Toggles & Contact
+        if (data.features_toggle) {
+          if (data.features_toggle.show_pricing === false) {
+            const pricing = document.getElementById('pricing-section');
+            if (pricing) pricing.style.display = 'none';
+            const navPricing = document.getElementById('nav-pricing-link');
+            if (navPricing) navPricing.style.display = 'none';
+          }
+          if (data.features_toggle.show_whatsapp_float && data.contact?.whatsapp) {
+            const waBtn = document.getElementById('whatsapp-float');
+            if (waBtn) {
+              waBtn.href = `[https://wa.me/$](https://wa.me/$){data.contact.whatsapp.replace(/[^0-9]/g, '')}`;
+              waBtn.classList.remove('hidden');
+            }
+          }
+        }
+
+        if (data.contact?.email) document.getElementById('contact-email').textContent = data.contact.email;
+        if (data.contact?.phone) document.getElementById('contact-phone').textContent = data.contact.phone;
+
+      } catch (err) {
+        console.warn('Could not load data.json', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
