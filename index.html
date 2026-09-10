@@ -1,86 +1,637 @@
-<!-- Dynamic Data Injection Script (English) -->
-  <script>
-    async function loadData() {
-      try {
-        const response = await fetch('data.json?t=' + new Date().getTime());
-        if (!response.ok) return;
-        const data = await response.json();
-
-        // 1. Branding / Colors
-        if (data.branding?.primary_color) {
-          document.documentElement.style.setProperty('--primary-color', data.branding.primary_color);
-        }
-        if (data.branding?.accent_color) {
-          document.documentElement.style.setProperty('--accent-color', data.branding.accent_color);
-        }
-
-        // 2. Media / Images
-        if (data.media?.hero_image) {
-          const heroImg = document.getElementById('hero-img');
-          if (heroImg) heroImg.src = data.media.hero_image;
-        }
-
-        // 3. English Content (data.en)
-        const content = data.en;
-        if (content) {
-          if (content.business_name) {
-            document.getElementById('nav-business-name').textContent = content.business_name;
-            document.getElementById('footer-brand').textContent = content.business_name;
-            document.getElementById('nav-logo-badge').textContent = content.business_name.charAt(0);
-            document.title = content.business_name + (content.tagline ? ' - ' + content.tagline : '');
-          }
-          if (content.tagline) document.getElementById('footer-tagline').textContent = content.tagline;
-
-          if (content.hero_badge) document.getElementById('hero-badge').textContent = content.hero_badge;
-          if (content.hero_title) document.getElementById('hero-title').textContent = content.hero_title;
-          if (content.hero_desc) document.getElementById('hero-desc').textContent = content.hero_desc;
-          if (content.primary_cta) document.getElementById('hero-primary-cta').textContent = content.primary_cta;
-          if (content.secondary_cta) document.getElementById('hero-secondary-cta').textContent = content.secondary_cta;
-
-          if (content.services_title) document.getElementById('services-main-title').textContent = content.services_title;
-          if (content.services_desc) document.getElementById('services-main-desc').textContent = content.services_desc;
-
-          if (Array.isArray(content.services)) {
-            const cards = document.querySelectorAll('#services-container > div');
-            content.services.forEach((service, index) => {
-              if (cards[index]) {
-                const titleEl = cards[index].querySelector('.service-title');
-                const descEl = cards[index].querySelector('.service-desc');
-                const imgEl = cards[index].querySelector('.service-img');
-                if (titleEl) titleEl.textContent = service.title;
-                if (descEl) descEl.textContent = service.desc;
-                if (imgEl && data.media && data.media[`service_${index + 1}_image`]) {
-                  imgEl.src = data.media[`service_${index + 1}_image`];
-                }
-              }
-            });
-          }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Test - Professional Solutions and Services in Khartoum. High-quality expertise tailored to your needs.">
+    <title>Test | Professional Solutions Khartoum</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #0f172a;
+            --accent: #38bdf8;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
         }
 
-        // 4. Feature Toggles & Contact
-        if (data.features_toggle) {
-          if (data.features_toggle.show_pricing === false) {
-            const pricing = document.getElementById('pricing-section');
-            if (pricing) pricing.style.display = 'none';
-            const navPricing = document.getElementById('nav-pricing-link');
-            if (navPricing) navPricing.style.display = 'none';
-          }
-          if (data.features_toggle.show_whatsapp_float && data.contact?.whatsapp) {
-            const waBtn = document.getElementById('whatsapp-float');
-            if (waBtn) {
-              waBtn.href = `[https://wa.me/$](https://wa.me/$){data.contact.whatsapp.replace(/[^0-9]/g, '')}`;
-              waBtn.classList.remove('hidden');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--white);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Utility Classes */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-padding {
+            padding: 100px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .mobile-menu-btn span {
+            width: 30px;
+            height: 3px;
+            background-color: var(--secondary);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 180px 0 100px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            line-height: 1.1;
+            color: var(--secondary);
+            margin-bottom: 24px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: -60px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 16px;
+            color: var(--secondary);
+        }
+
+        /* About Section */
+        .about {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .about-content {
+            flex: 1;
+        }
+
+        .about-image {
+            flex: 1;
+            background: #e2e8f0;
+            height: 400px;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+        }
+
+        .section-tag {
+            color: var(--primary);
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 24px;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .service-item {
+            padding: 32px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .service-item:hover {
+            border-color: var(--primary);
+            background: #fdfdfd;
+        }
+
+        /* Stats */
+        .stats {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* Contact Section */
+        .contact {
+            background: var(--bg-light);
+            border-radius: 24px;
+            padding: 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+
+        .contact-info h2 {
+            margin-bottom: 24px;
+        }
+
+        .contact-detail {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .contact-detail span {
+            font-weight: 700;
+            color: var(--secondary);
+            min-width: 80px;
+        }
+
+        .contact-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer-copy {
+            text-align: center;
+            padding-top: 30px;
+            font-size: 14px;
+            opacity: 0.6;
+        }
+
+        /* Mobile Menu */
+        .nav-links.active {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background: var(--white);
+            padding: 40px;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
             }
-          }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .about, .contact {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .contact {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">TEST</div>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <a href="#contact" class="btn btn-primary">Get Started</a>
+                <div class="mobile-menu-btn" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="container">
+                <span class="hero-badge">Innovative Services in Khartoum</span>
+                <h1>Building the Future of Business with Precision.</h1>
+                <p>Welcome to Test. We provide professional solutions and dedicated expertise tailored to help your projects thrive in Sudan's evolving market.</p>
+                <div class="hero-btns">
+                    <a href="#services" class="btn btn-primary">Our Services</a>
+                    <a href="#about" class="btn btn-outline">Learn More</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Grid -->
+        <section class="container">
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">★</div>
+                    <h3>Quality Driven</h3>
+                    <p>We maintain the highest standards in every project, ensuring results that exceed expectations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Local Expertise</h3>
+                    <p>Deeply rooted in Khartoum, we understand the local business landscape and requirements.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Reliable Partner</h3>
+                    <p>Your success is our priority. We offer consistent support and transparent communication.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="section-padding container" id="about">
+            <div class="about">
+                <div class="about-image">
+                    <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.2;">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                </div>
+                <div class="about-content">
+                    <span class="section-tag">About Our Business</span>
+                    <h2 class="section-title">Professional Excellence in Every Detail</h2>
+                    <p>Based in the heart of Khartoum, Test is dedicated to providing specialized services that bridge the gap between vision and reality. Whether you're looking for consulting, operational support, or technical expertise, our team is equipped to deliver.</p>
+                    <p style="margin-top: 20px;">We believe in building long-term relationships based on trust, integrity, and exceptional performance. Our approach is personalized, ensuring that every client receives a solution that fits their unique context.</p>
+                    <div style="margin-top: 30px;">
+                        <a href="#contact" class="btn btn-primary">Contact Us Today</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats">
+            <div class="container">
+                <div class="stats-grid">
+                    <div>
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">Projects Completed</span>
+                    </div>
+                    <div>
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Happy Clients</span>
+                    </div>
+                    <div>
+                        <span class="stat-number">5+</span>
+                        <span class="stat-label">Years Experience</span>
+                    </div>
+                    <div>
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Client Support</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="section-padding container" id="services">
+            <div style="text-align: center; margin-bottom: 60px;">
+                <span class="section-tag">What We Offer</span>
+                <h2 class="section-title">Our Main Services</h2>
+                <p style="max-width: 700px; margin: 0 auto; color: var(--text-light);">We provide a comprehensive range of services designed to support growth and efficiency.</p>
+            </div>
+            
+            <div class="services-grid">
+                <div class="service-item">
+                    <h3>Strategic Consulting</h3>
+                    <p>In-depth analysis and planning to help your business navigate challenges and seize opportunities in the Khartoum market.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Operational Support</h3>
+                    <p>Streamlining your processes to improve productivity and reduce costs through proven methodologies.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Digital Solutions</h3>
+                    <p>Modernizing your presence and internal tools to keep pace with global technological advancements.</p>
+                </div>
+                <div class="service-item">
+                    <h3>Local Market Research</h3>
+                    <p>Providing actionable insights into Sudanese consumer behavior and economic trends.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="section-padding container" id="contact">
+            <div class="contact">
+                <div class="contact-info">
+                    <span class="section-tag">Reach Out</span>
+                    <h2 class="section-title">Let's Discuss Your Project</h2>
+                    <p style="margin-bottom: 30px;">Ready to take the next step? Contact us for a consultation or to learn more about how we can help you achieve your goals.</p>
+                    
+                    <div class="contact-detail">
+                        <span>Email:</span>
+                        <a href="mailto:mkam@fsf.com" style="color: var(--primary); text-decoration: none;">mkam@fsf.com</a>
+                    </div>
+                    <div class="contact-detail">
+                        <span>Location:</span>
+                        <p>خرتوم (Khartoum), Sudan</p>
+                    </div>
+                    <div class="contact-detail">
+                        <span>Hours:</span>
+                        <p>Sun - Thu: 9:00 AM - 5:00 PM</p>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <div class="form-group">
+                        <input type="text" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea rows="5" placeholder="Tell us about your project or inquiry" required></textarea>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Send Message</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="logo" style="color: white; margin-bottom: 10px;">TEST</div>
+                    <p style="opacity: 0.7; max-width: 300px;">Professional solutions and business excellence located in Khartoum.</p>
+                </div>
+                <ul class="nav-links" style="display: flex; position: static; background: transparent; padding: 0; box-shadow: none;">
+                    <li><a href="#home" style="color: white;">Home</a></li>
+                    <li><a href="#about" style="color: white;">About</a></li>
+                    <li><a href="#services" style="color: white;">Services</a></li>
+                    <li><a href="#contact" style="color: white;">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-copy">
+                &copy; 2024 Test. All rights reserved. Khartoum, Sudan.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('navLinks');
+            nav.classList.toggle('active');
         }
 
-        if (data.contact?.email) document.getElementById('contact-email').textContent = data.contact.email;
-        if (data.contact?.phone) document.getElementById('contact-phone').textContent = data.contact.phone;
+        // Close menu when a link is clicked
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.remove('active');
+            });
+        });
 
-      } catch (err) {
-        console.warn('Could not load data.json', err);
-      }
-    }
+        // Simple animation on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
 
-    document.addEventListener('DOMContentLoaded', loadData);
-  </script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .service-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
